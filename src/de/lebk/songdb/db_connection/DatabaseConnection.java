@@ -8,10 +8,8 @@ import java.sql.*;
 public class DatabaseConnection {
 
     private static DatabaseConnection ourInstance = new DatabaseConnection();
-    private static final String HOME_DIR = System.getProperty("user.dir");
 
     private Connection connection = null;
-    private Statement statement = null;
 
     private String databaseName = "songdb";
     private String user = "root";
@@ -29,6 +27,30 @@ public class DatabaseConnection {
 
     public void getMetaInformation() throws SQLException {
         DatabaseMetaData metaData = this.connection.getMetaData();
+
+        String[] types = { "TABLE"};
+
+        ResultSet metaRS = metaData.getTables(null, null, "%", types);
+
+        while (metaRS.next()) {
+            System.out.println("Meta-Information: ");
+            System.out.println("==============\n");
+            // Catalog
+            String tableCatalog = metaRS.getString(1);
+            System.out.println("Catalog: " + tableCatalog);
+
+            // Schemata
+            String tableSchema = metaRS.getString(2);
+            System.out.println("Tabellen-Schema: " + tableSchema);
+
+            // Tabellennamen
+            String tableName = metaRS.getString(3);
+            System.out.println("Tabellen-Name: " + tableName);
+
+            // Tabellentyp
+            String tableType = metaRS.getString(4);
+            System.out.println("Tabellen-Typ: " + tableType + "\n");
+        }
     }
 
 

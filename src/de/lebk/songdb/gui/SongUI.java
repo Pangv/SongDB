@@ -1,13 +1,14 @@
 package de.lebk.songdb.gui;
 
 import de.lebk.songdb.data_store.DataStore;
+import de.lebk.songdb.db_connection.ManageDatabase;
 import de.lebk.songdb.song.Song;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 /**
  * @author sopaetzel
@@ -15,6 +16,8 @@ import java.awt.event.ActionListener;
 public class SongUI {
     private static JFrame frame;
     private static JPanel container;
+
+    private ManageDatabase manageDatabase;
 
     private JTextField txtfSong;
     private JTextField txtfSinger;
@@ -27,7 +30,53 @@ public class SongUI {
     private JLabel lblSinger;
 
 
-    public static void main(String[] args){
+    public SongUI() {
+        btnSearchSong.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (txtfSong.getText().length() > 0) {
+                    Song song;
+                    if ((song = DataStore.getInstance().getSongByTitle(txtfSong.getText()))!= null) {
+                        txtfSinger.setText(song.getSinger());
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(null, "Der Song ist nicht vorhanden");
+                    }
+
+                }else
+                {
+                    JOptionPane.showMessageDialog(null, "Das Feld darf nicht leer sein.");
+                }
+            }
+        });
+        btnSaveSong.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String song = txtfSong.getText();
+                String singer = txtfSinger.getText();
+
+                try {
+                    manageDatabase.mergeRow("song", song, singer);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        btnBack.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        btnForward.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+    }
+
+    public static void main(String[] args) {
         setLookAndFeel();
         frame = new JFrame("Meine kleine Musik-Datenbank");
         container = new SongUI().pnlFrame;
@@ -43,12 +92,12 @@ public class SongUI {
     }
 
 
-    private void initActionListener(){
+    private void initActionListener() {
         btnSearchSong.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               Song song =  DataStore.getInstance().getSongByTitle(txtfSong.getText());
-               txtfSinger.setText(song.getSinger());
+                Song song = DataStore.getInstance().getSongByTitle(txtfSong.getText());
+                txtfSinger.setText(song.getSinger());
             }
         });
 
@@ -59,17 +108,19 @@ public class SongUI {
                 String song = txtfSong.getText();
                 String singer = txtfSinger.getText();
 
+                try {
+                    manageDatabase.mergeRow("song", song, singer);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+
             }
         });
 
     }
 
 
-
-
-
-
-    private static void setLookAndFeel(){
+    private static void setLookAndFeel() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
